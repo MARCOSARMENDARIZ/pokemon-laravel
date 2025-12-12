@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: pokemon-laravel
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    numInstances: 1
+    autoDeploy: true
+    healthCheckPath: /
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        sync: false
+      - key: APP_DEBUG
+        value: false
+      - key: LOG_CHANNEL
+        value: stderr
