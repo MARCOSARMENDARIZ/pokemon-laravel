@@ -55,6 +55,9 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
+            text-align: center;
+            display: inline-block;
+            text-decoration: none;
         }
 
         .btn:hover {
@@ -77,7 +80,8 @@
 
         <h2>Iniciar Sesión</h2>
 
-        {{-- Solo diseño, no lógica --}}
+        {{-- Solo diseño, sin autenticación --}}
+
         <div class="input-group">
             <label>Correo electrónico</label>
             <input type="email" placeholder="usuario@example.com">
@@ -88,9 +92,10 @@
             <input type="password" placeholder="********">
         </div>
 
-        <button class="btn">Entrar</button>
+        {{-- BOTÓN QUE REDIRIGE AL INDEX --}}
+        <a href="/inicio" class="btn">Entrar</a>
 
-        {{-- Botón para volver al listado --}}
+        {{-- Botón para volver al inicio --}}
         <a href="/inicio" class="back-home">← Volver al inicio</a>
 
     </div>
