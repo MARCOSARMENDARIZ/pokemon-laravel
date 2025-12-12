@@ -22,9 +22,6 @@ COPY . .
 # Instalar dependencias de Laravel
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Generar APP_KEY
-RUN php artisan key:generate --force
-
 # Dar permisos
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
