@@ -21,23 +21,14 @@ WORKDIR /var/www/html
 # Copiar proyecto
 COPY . .
 
-# Instalar dependencias Laravel
+# Instalar dependencias de Laravel
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # Permisos
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-# Copiar configuración de nginx
+# Copiar configuración de Nginx
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
-
-# Limpiar cache
-RUN php artisan config:clear \
- && php artisan route:clear \
- && php artisan view:clear
-
-# Render usa $PORT (no 80)
-EXPOSE 10000
 
 # Iniciar PHP-FPM + Nginx
 CMD php-fpm -D && nginx -g "daemon off;"
-
