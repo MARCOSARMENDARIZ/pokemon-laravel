@@ -30,5 +30,8 @@ RUN chown -R www-data:www-data storage bootstrap/cache
 # Copiar configuración de Nginx
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 
+# 👉 ESTA ES LA ÚNICA LÍNEA NUEVA 👈
+COPY docker/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
+
 # Iniciar PHP-FPM + Nginx
 CMD php-fpm -D && nginx -g "daemon off;"
