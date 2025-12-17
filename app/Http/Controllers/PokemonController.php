@@ -57,53 +57,49 @@ class PokemonController extends Controller
         return view('pokemon.show', compact('pokemon'));
     }
 
+// PDF lista completa
+public function pdfList()
+{
+    $response = Http::get('https://pokeapi.co/api/v2/pokemon?limit=30');
+    $data = $response->json();
 
-    // ==================================================
-    // 🖨 PDF — LISTA COMPLETA (usa pdf.blade.php)
-    // ==================================================
-    public function pdfList()
-    {
-        $response = Http::get('https://pokeapi.co/api/v2/pokemon?limit=30');
-        $data = $response->json();
+    $pokemons = [];
 
-        $pokemons = [];
+    foreach ($data['results'] as $item) {
+        $detail = Http::get($item['url'])->json();
 
-        foreach ($data['results'] as $item) {
-            $detail = Http::get($item['url'])->json();
-
-            $pokemons[] = [
-                'name'  => $detail['name'],
-                'image' => $detail['sprites']['front_default']
-            ];
-        }
-
-        // Usa el MISMO archivo pdf.blade.php
-        $pdf = Pdf::loadView('pokemon.pdf', [
-            'pokemons' => $pokemons,
-            'pokemon' => null
-        ]);
-
-        return $pdf->stream('lista-pokemon.pdf');
+        $pokemons[] = [
+            'name'  => $detail['name'],
+            'image' => $detail['sprites']['front_default']
+        ];
     }
 
-    // ==================================================
-    // 🖨 PDF — POKÉMON INDIVIDUAL (usa pdf.blade.php)
-    // ==================================================
-    public function pdfSingle($name)
-    {
-        $response = Http::get("https://pokeapi.co/api/v2/pokemon/{$name}");
+    $pdf = Pdf::loadView('pokemon.pdf', [
+        'pokemons' => $pokemons,
+        'pokemon' => null
+    ]);
 
-        if (!$response->successful()) {
-            abort(404);
-        }
+    return $pdf->download('lista-pokemon.pdf');
+}
 
-        $pokemon = $response->json();
 
-        $pdf = Pdf::loadView('pokemon.pdf', [
-            'pokemon' => $pokemon,
-            'pokemons' => null
-        ]);
+// PDF individual
+public function pdfSingle($name)
+{
+    $response = Http::get("https://pokeapi.co/api/v2/pokemon/{$name}");
 
-        return $pdf->stream('pokemon-' . $pokemon['name'] . '.pdf');
+    if (!$response->successful()) {
+        abort(404);
     }
+
+    $pokemon = $response->json();
+
+    $pdf = Pdf::loadView('pokemon.pdf', [
+        'pokemon' => $pokemon,
+        'pokemons' => null
+    ]);
+
+    return $pdf->download('pokemon-' . $pokemon['name'] . '.pdf');
+}
+
 }
