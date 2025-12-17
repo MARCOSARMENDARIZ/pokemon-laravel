@@ -12,6 +12,10 @@ RUN apt-get update && apt-get install -y \
     nginx \
     && docker-php-ext-install pdo pdo_mysql
 
+# 🔥 BORRAR SITIO DEFAULT DE NGINX (ESTA ES LA CLAVE)
+RUN rm -f /etc/nginx/sites-enabled/default \
+    && rm -f /etc/nginx/sites-available/default
+
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -26,9 +30,6 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
 # Permisos
 RUN chown -R www-data:www-data storage bootstrap/cache
-
-# 🔥 ÚNICA LÍNEA NUEVA 🔥
-RUN rm -f /etc/nginx/conf.d/default.conf
 
 # Copiar configuración de Nginx
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
