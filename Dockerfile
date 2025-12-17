@@ -27,10 +27,13 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 # Permisos
 RUN chown -R www-data:www-data storage bootstrap/cache
 
+# 🔥 ÚNICA LÍNEA NUEVA 🔥
+RUN rm -f /etc/nginx/conf.d/default.conf
+
 # Copiar configuración de Nginx
 COPY nginx/default.conf /etc/nginx/conf.d/default.conf
 
-# 👉 ESTA ES LA ÚNICA LÍNEA NUEVA 👈
+# PHP-FPM
 COPY docker/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Iniciar PHP-FPM + Nginx
