@@ -1,44 +1,33 @@
-FROM php:8.2
+# ---------- FRONTEND (VITE) ----------
+FROM node:18 AS nodebuild
+WORKDIR /app
 
-# Instalar dependencias del sistema + Node
-RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    nodejs \
-    npm \
-    && docker-php-ext-install pdo pdo_mysql
-
-# Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Directorio de trabajo
-WORKDIR /var/www/html
-
-# Copiar proyecto
-COPY . .
-
-# Instalar dependencias backend
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
-
-# 🔥 VITE (ESTO ES LO QUE FALTABA) 🔥
+COPY package*.json ./
 RUN npm install
+
+COPY resources ./resources
+COPY vite.config.js ./
 RUN npm run build
 
-# Permisos
-RUN chown -R www-data:www-data storage bootstrap/cache
 
-# Limpiar cache Laravel
-RUN php artisan config:clear \
- && php artisan route:clear \
- && php artisan view:clear
+# ---------- BACKEND (LARAVEL) ----------
+FROM php:8.2
 
-# Render usa $PORT
+RUN apt-get update && apt-get install -y \
+    git unzip curl libpng-dev libonig-dev libxml2-dev zip \
+    && docker-php-ext-install pdo pdo_mysql
+
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+WORKDIR /var/www/html
+COPY . .
+
+# 🔥 Copiamos el build de Vite al public
+COPY --from=nodebuild /app/public/build public/build
+
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN chown -R www-data:www-data storage bootstrap/cache public/build
+RUN php artisan optimize:clear
+
 EXPOSE 10000
-
-# Comando correcto para Render
 CMD php artisan serve --host=0.0.0.0 --port=$PORT
